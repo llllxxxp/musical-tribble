@@ -1,0 +1,220 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+const int N = 70, M = 1000;
+
+typedef struct Shoppingitem
+{
+    char name[50];
+    int quantity;
+    struct Shoppingitem* next;
+}Nodeer;
+
+Nodeer* shoppinglist = NULL;
+Nodeer* shoppinglist2 = NULL;
+
+void addItem(char ItemName[], int itemQuantity)
+{
+    Nodeer* newItem = (Nodeer*)malloc(sizeof(Nodeer));
+
+    strcpy(newItem->name, ItemName);
+
+    newItem->quantity = itemQuantity;
+    if (shoppinglist == NULL) {
+        shoppinglist = newItem;
+        newItem->next = NULL;
+        shoppinglist->next = NULL;
+    }
+    else {
+        newItem->next = shoppinglist;
+        shoppinglist = newItem;
+    }
+}
+
+void removeItem(char itemName[])
+{
+    Nodeer* current = shoppinglist;
+    Nodeer* previous = NULL;
+
+    while (current != NULL) {
+        if (strcmp(current->name, itemName) == 0) {
+            if (previous != NULL) previous->next = current->next;
+            else
+                shoppinglist = current->next;
+            free(current);
+            break;
+        }
+        previous = current;
+        current = current->next;
+    }
+}
+
+void displaylist()
+{
+    Nodeer* current = shoppinglist;
+
+    printf("购物清单:\n");
+    while (current != NULL)
+    {
+        printf("%s - 数量: %d\n", current->name, current->quantity);
+        current = current->next;
+    }
+}
+
+void updateQuantity(char itemName[], int newItemQuantity)
+{
+    Nodeer* current = shoppinglist;
+
+    while (current != NULL)
+    {
+        if (strcmp(current->name, itemName) == 0)
+        {
+            current->quantity = newItemQuantity;
+            break;
+        }
+        current = current->next;
+    }
+}
+
+void clearlist()
+{
+    while (shoppinglist != NULL)
+    {
+        Nodeer* temp = shoppinglist;
+        shoppinglist = shoppinglist->next;
+        free(temp);
+    }
+}
+
+int totalQuantity()
+{
+    Nodeer* current = shoppinglist;
+    int total = 0;
+
+    while (current != NULL)
+    {
+        total++;
+        current = current->next;
+    }
+
+    return total;
+}
+
+void findItem(char itemName[])
+{
+    Nodeer* current = shoppinglist;
+
+    printf("查找商品\"%s\" : \n", itemName);
+    while (current != NULL)
+    {
+        if (strcmp(current->name, itemName) == 0)
+        {
+            printf("%s - 数量: %d\n", current->name, current->quantity);
+            return;
+        }
+        current = current->next;
+    }
+
+    printf("未找到商品\"%s\"。 \n", itemName);
+}
+
+void sortlist()
+{
+    Nodeer* current = shoppinglist;
+    Nodeer* nextItem = NULL;
+    char tempName[50];
+    int tempQuantity;
+
+    while (current != NULL) {
+        nextItem = current->next;
+
+        while (nextItem != NULL) {
+            if (strcmp(current->name, nextItem->name) > 0)
+            {
+                strcpy(tempName, current->name);
+                strcpy(current->name, nextItem->name);
+                strcpy(nextItem->name, tempName);
+
+                tempQuantity = current->quantity;
+                current->quantity = nextItem->quantity;
+                nextItem->quantity = tempQuantity;
+            }
+            nextItem = nextItem->next;
+        }
+        current = current->next;
+    }
+}
+
+void deleteItem(char itemName[], int deleteALL)
+{
+    Nodeer* current = shoppinglist;
+    Nodeer* prev = NULL;
+
+    while (current != NULL) {
+        if (strcmp(current->name, itemName) == 0) {
+            if (prev == NULL) {
+                Nodeer* temp = shoppinglist;
+                current = shoppinglist = shoppinglist->next;
+                free(temp);
+                if (!deleteALL) break;
+            }
+            else {
+                prev->next = current->next;
+                free(current);
+                current = prev->next;
+                if (!deleteALL) break;
+            }
+        }
+        else {
+            prev = current;
+            current = current->next;
+        }
+    }
+}
+
+int main()
+{
+    int n;
+    char itemname[M][N];
+    int item;
+
+    scanf("%d", &n);
+
+    for (int k = 0; k < n; k++)
+    {
+        scanf("%s%d", itemname[i], &item);
+        addItem(itemname[i], item);
+    }
+    printf("计算购物清单中商品的总数量 = %d\n", totalQuantity());
+    printf("查找3号商品:\n");
+    findItem(itemname[3]);
+    displaylist();
+    printf("\n");
+
+    printf("把第5件商品数量改为15\n");
+    updateQuantity(itemname[5], 15);
+    displaylist();
+    printf("\n");
+
+    printf("删掉第itemname[9]商品:\n");
+    removeItem(itemname[9]);
+    displaylist();
+    printf("\n");
+
+    printf("对商品清单进行排序");
+    sortlist();
+    displaylist();
+    printf("\n");
+
+    printf("删除名称为itemname[9]的商品\n");
+    deleteItem(itemname[9], 1);
+    displaylist();
+    printf("\n");
+
+    printf("清空clear: \n");
+    clearlist();
+    displaylist();
+    printf("\n");
+
+    return 0;
+}
